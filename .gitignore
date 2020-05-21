@@ -1,0 +1,7 @@
+.git
+weights/*.*
+vedio/*.mp4
+output/samples/*.jpg
+image/*.jpg
+.idea
+__pycache__
