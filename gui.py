@@ -5,28 +5,16 @@ import vedio
 import matplotlib.pyplot as plt
 import os
 
-def upload():
+def upload(filepath):
     root = tkinter.Tk()
     root.withdraw()
-    Filepath = filedialog.askopenfilename()  # 获得选择好的文件
+    filepath.set(filedialog.askopenfilename())
 
 #播放按钮
-def play():
-    v = vedio.Vedio()
-    root = tkinter.Tk()
-    root.title("warning")
-    root.geometry("300x300+300+300")
-    root.resizable(False, False)  # 窗口不可调整大小
-    root.update()  # 必须
-    scroll = tkinter.Scrollbar()
-    scroll.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-    text = tkinter.Text(root, width=50, height=15)
-    text.pack()
-    scroll.config(command=text.yview)
-    text.config(yscrollcommand=scroll.set)
-    for message in v.play_vedio():
-        pass
-    tkinter.mainloop()
+def play(filepath):
+    v = vedio.Vedio(vedio_file=filepath)
+    v.play_vedio()
+
 
 def plate():
     v = vedio.Vedio()
@@ -70,7 +58,7 @@ if __name__ == '__main__':
     root = tkinter.Tk()
     root.title('云城交通')
     # root.geometry('400x500')
-    Filepath = ""
+    Filepath = tkinter.StringVar()
     root.resizable(False, False)  # 窗口不可调整大小
     root.update()  # 必须
     set_win_center(root, 400, 600)
@@ -106,9 +94,9 @@ if __name__ == '__main__':
     photo7 = ImageTk.PhotoImage(img7)
 
     canvas.pack()
-    b1 = tkinter.Button(root, relief='raised', cursor="hand2", image=photo4, width=40, command=upload)
+    b1 = tkinter.Button(root, relief='raised', cursor="hand2", image=photo4, width=40, command=lambda:upload(Filepath))
     b1.pack()
-    b2 = tkinter.Button(root, relief='raised', cursor="hand2", image=photo5, width=40, command=play)
+    b2 = tkinter.Button(root, relief='raised', cursor="hand2", image=photo5, width=40, command=lambda: play(Filepath.get()))
     b2.pack()
     b3 = tkinter.Button(root, relief='raised', cursor="hand2", image=photo7, width=40, command=plate)
     b3.pack()

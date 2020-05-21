@@ -218,15 +218,14 @@ class Vedio():
                  class_path="config/ptsc.names",
                  conf_thres=0.8,
                  n_cpu=8,
-                 nms_thres=0.1,
-                 img_size=416,
+                 nms_thres=0.05,
+                 img_size=608,
                  batch_size=32):
         self.car_weight_path = car_weight_path
         self.n_cpu = n_cpu
         self.car_class_path = car_class_path
         self.car_model_def = car_model_def
         self.batch_size=32
-        
         self.vedio_file = vedio_file
         self.model_def = model_def
         self.weights_path = weights_path
@@ -318,6 +317,8 @@ class Vedio():
                                     color, 2)
 
                         ################################步骤二载入数据START#################################################
+
+
                         centers, number = calc_center(out_boxs, out_classes, out_scores, score_limit=0.6)
                         tracker, result, road,count = trackerDetection(tracker, img, centers, count, max_point_distance=20)
 
@@ -329,9 +330,9 @@ class Vedio():
                         bestroad = 2.5
                         if road != 0 and road <= 7:
                             bestroad = road
-                        #########由于数据得不准确，所以采用初始值优化速度###############################################
+                        # #########由于数据得不准确，所以采用初始值优化速度###############################################
                         cv2.putText(result, str(round(bestroad * 20, 2)) + "km/h", (int(x2), int(y2)),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
                         #################################绘制车辆得车速检测END#########################################
 
                         #cv2.putText(result, str(round(road * 20, 2)) + "km/h", (int(x2), int(y2)),
@@ -451,6 +452,6 @@ class Vedio():
             plt.close()
 
 if __name__ == "__main__":
-    v = Vedio()
+    v = Vedio(vedio_file="E:\\pytorch_software_cup\\ptsc-gui-master\\data\\vedio\\car.mp4")
     v.play_vedio()
 
