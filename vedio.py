@@ -268,7 +268,7 @@ class Vedio():
         count = 0
         pic_cnt = 0
         file = open("car_num.txt","w")
-        file.writelines("%.1f" % 0, "%.1f" % 0)
+        file.writelines("%.1f" % 0 + "%.1f" % 0+"\n")
         ####################初始化人流总数##################
         while cap.isOpened():
             pic_cnt = pic_cnt + 1
@@ -341,8 +341,8 @@ class Vedio():
 
                         #cv2.putText(result, str(round(road * 20, 2)) + "km/h", (int(x2), int(y2)),
                          #           cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-            if pic_cnt %(11*60) == 0:
-                file.writelines("%.1f"%(time.time()-time_begin),"%.1f"%number)
+            if pic_cnt %(11*1) == 0:
+                file.writelines("%.1f"%(time.time()-time_begin)+"%d"%(number)+"\n")
             cv2.imshow('frame', changeRGB2BGR(RGBimg))
             # cv2.waitKey(0)
 
