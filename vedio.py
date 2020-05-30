@@ -156,7 +156,7 @@ def trackerDetection(tracker, image, centers, count, max_point_distance=30, max_
                 x0, y0 = tracker.tracks[i].trace[-1][0][0], tracker.tracks[i].trace[-1][1][0]
                 ##铺设轨迹点
                 # cv2.putText(result, str(tracker.tracks[i].track_id), (int(x0), int(y0)), font, track_id_size,
-                #             (255, 255, 255), 4)
+                #              (255, 255, 255), 4)
 
                 # (image,text,(x,y),font,size,color,粗细)
 
@@ -189,10 +189,10 @@ def trackerDetection(tracker, image, centers, count, max_point_distance=30, max_
                     # print(x2,y2)
                     # print("----------------------------")
                     ############################添加显示速度
-                    # if distance < max_point_distance:
-                    #     cv2.line(result, (int(x1), int(y1)), (int(x2), int(y2)),
-                    #              track_colors[clr], 4)
-                        # print(j)
+                    if distance < max_point_distance:
+                        cv2.line(result, (int(x1), int(y1)), (int(x2), int(y2)),
+                                 track_colors[clr], 4)
+                        print(j)
                         # print("fenge---------------")
                         ############################类积分添加预测点START#####################
                         # cv2.line(result, (int(x2), int(y2)), (int(x1+x2), int(y1+y2)),
@@ -210,7 +210,7 @@ def trackerDetection(tracker, image, centers, count, max_point_distance=30, max_
 class Vedio():
     def __init__(self,
                 car_weight_path="weights/car_num.pth",
-                 vedio_file="data/vedio/video-01.mp4",
+                 vedio_file="data/vedio/test.mp4",
                  car_model_def="config/plate.cfg",
                  car_class_path="config/plate.names",
                  model_def="config/ptsc.cfg",
@@ -268,7 +268,7 @@ class Vedio():
         count = 0
         pic_cnt = 0
         file = open("car_num.txt","w")
-        file.writelines("%.1f" % 0 + "%.1f" % 0+"\n")
+        file.writelines("%.1f" % 0 +" " +"%.1f" % 0+"\n")
         ####################初始化人流总数##################
         while cap.isOpened():
             pic_cnt = pic_cnt + 1
@@ -324,25 +324,25 @@ class Vedio():
 
 
                         centers, number = calc_center(out_boxs, out_classes, out_scores, score_limit=0.6)
-                        # tracker, result, road,count = trackerDetection(tracker, img, centers, count, max_point_distance=20)
+                        tracker, result, road,count = trackerDetection(tracker, img, centers, count, max_point_distance=20)
                         #
                         # ################################步骤二载入数据END####################################################################
                         #
                         #
                         # #################################绘制车辆得车速检测START#######################################
                         # #########由于数据得不准确，所以采用初始值优化速度###############################################
-                        # bestroad = 2.5
-                        # if road != 0 and road <= 7:
-                        #     bestroad = road
+                        bestroad = 2.5
+                        if road != 0 and road <= 7:
+                            bestroad = road
                         # # #########由于数据得不准确，所以采用初始值优化速度###############################################
-                        # cv2.putText(result, str(round(bestroad * 20, 2)) + "km/h", (int(x2), int(y2)),
-                        #              cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                        cv2.putText(result, str(round(bestroad * 20, 2)) + "km/h", (int(x2), int(y2)),
+                                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
                         #################################绘制车辆得车速检测END#########################################
 
                         #cv2.putText(result, str(round(road * 20, 2)) + "km/h", (int(x2), int(y2)),
                          #           cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
             if pic_cnt %(11*1) == 0:
-                file.writelines("%.1f"%(time.time()-time_begin)+"%d"%(number)+"\n")
+                file.writelines("%.1f"%(time.time()-time_begin)+" "+"%d"%(number)+"\n")
             cv2.imshow('frame', changeRGB2BGR(RGBimg))
             # cv2.waitKey(0)
 
@@ -456,6 +456,6 @@ class Vedio():
             plt.close()
 
 if __name__ == "__main__":
-    v = Vedio(vedio_file="C:\\Users\\maybe\\Documents\\Tencent Files\\975307421\\FileRecv\\monitor.mp4")
+    v = Vedio()
     v.play_vedio()
 
