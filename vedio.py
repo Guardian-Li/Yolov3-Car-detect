@@ -4,6 +4,8 @@ from models import *
 from utils.utils import *
 from utils.datasets import *
 from utils.point_line import *
+from utils.createcarplate import plateofcar
+
 
 import os
 import sys
@@ -65,10 +67,6 @@ def getYKey(x):
 #####################################额外导入的轨迹函数部分START#########################################################
 def calc_center(out_boxes, out_classes, out_scores, score_limit=0.5):  ###添加一个种类参数
     outboxes_filter = []
-    # print(float(out_scores))
-    # print("---------------")
-    # print(len(out_classes))
-    # print("-----------------")
     for x, y, z in zip(out_boxes, out_classes, out_scores):
 
         if z > score_limit:
@@ -79,8 +77,6 @@ def calc_center(out_boxes, out_classes, out_scores, score_limit=0.5):  ###添加
 
     centers = []
     number = len(outboxes_filter)
-    # print(number)
-    # print("length")
     for box in outboxes_filter:
         x1, y1, x2, y2 = box
         # top, left, bottom, right = box
@@ -127,38 +123,23 @@ def trackerDetection(tracker, image, centers, count, max_point_distance=30, max_
 
     result = np.asarray(image)
 
-    # print("*****************************")
-    # print("np,as")
-    # print(result)
-    # print("***************************")
     font = cv2.FONT_HERSHEY_SIMPLEX
-
     # cv2.putText(image, str(number), (20, 40), font, 1, (0, 0, 255), 5)  # 左上角，人数计数
     ##################################红绿灯线的位置START#############################
     RoadLine = Segment(Point(300,250), Point(800,250))
     ##################################红绿灯线的位置END###############################
 
     if (len(centers) > 0):
-        # Track object using Kalman Filter
+
         tracker.Update(centers)
-        # print(centers)
-        # For identified object tracks draw tracking line
-        # Use various colors to indicate different track_id
+
         road = 0
         for i in range(len(tracker.tracks)):
-            # print(i)
-            # print(outbox[i])
-            # print(outbox)
-            # print("------------------")
+
 
             # 多个轨迹
             if (len(tracker.tracks[i].trace) > 1):
                 x0, y0 = tracker.tracks[i].trace[-1][0][0], tracker.tracks[i].trace[-1][1][0]
-                ##铺设轨迹点
-                # cv2.putText(result, str(tracker.tracks[i].track_id), (int(x0), int(y0)), font, track_id_size,
-                #              (255, 255, 255), 4)
-
-                # (image,text,(x,y),font,size,color,粗细)
 
                 #############################绘制轨迹START############################
 
@@ -182,29 +163,16 @@ def trackerDetection(tracker, image, centers, count, max_point_distance=30, max_
                     if segmentsIntersect(RoadLine,MidLine) and tracker.tracks[i].flag[i]==False:
                         tracker.tracks[i].flag[i] = True
                         count += 1
-                    ######################中心点的线段START#################
 
-                    # print(distance)
-                    # print(x1,y1)
-                    # print(x2,y2)
-                    # print("----------------------------")
-                    ############################添加显示速度
                     if distance < max_point_distance:
                         cv2.line(result, (int(x1), int(y1)), (int(x2), int(y2)),
-                                 track_colors[clr], 4)
-                        print(j)
-                        # print("fenge---------------")
-                        ############################类积分添加预测点START#####################
-                        # cv2.line(result, (int(x2), int(y2)), (int(x1+x2), int(y1+y2)),
-                        #          track_colors[clr], 4)
-                        #############################类积分添加预测点END######################
+                                 (255, 255, 255), 4)
 
-                ################################绘制轨迹END#############################s
 
     return tracker, image, road,count
 
 
-#############################################额外导入的轨迹函数部分END###################################################
+
 
 
 class Vedio():
@@ -240,7 +208,6 @@ class Vedio():
             # Load darknet weights
             model.load_darknet_weights(self.weights_path)
         else:
-            # Load checkpoint weights
             print(self.weights_path)
             model.load_state_dict(torch.load(self.weights_path))
         model.eval()
@@ -249,15 +216,14 @@ class Vedio():
         self.model_plate=model_plate
 
         model_plate.eval()
-        # model_plate.eval()
-        # self.model_plate=model_plate
+
 
 
     def play_vedio(self):
         tracker = Tracker(100, 8, 15, 100)
         classes = load_classes(self.class_path)
         Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
-        # if opt.vedio_file.endswith(".mp4"):
+
         cap = cv2.VideoCapture(self.vedio_file)
         colors = np.random.randint(0, 255, size=(len(classes), 3), dtype="uint8")
         a = []
@@ -299,7 +265,7 @@ class Vedio():
                     out_scores = []
                     ###############################图片的对角坐标保存，轨迹的变量END######################
                 if detections is not None:
-                    #print(detections)
+
                     detections = rescale_boxes(detections, self.img_size, RGBimg.shape[:2])
                     unique_labels = detections[:, -1].cpu().unique()
                     n_cls_preds = len(unique_labels)
@@ -319,6 +285,8 @@ class Vedio():
                         cv2.putText(img, classes[int(cls_pred)], (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
                         cv2.putText(img, str("%.2f" % float(conf)), (x2, y2 - box_h), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                                     color, 2)
+                        cv2.putText(img, plateofcar(len), (x2, (y1 + y2) / 2), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                    (37, 148, 155), 2)
 
                         ################################步骤二载入数据START#################################################
 
@@ -342,17 +310,17 @@ class Vedio():
                         #cv2.putText(result, str(round(road * 20, 2)) + "km/h", (int(x2), int(y2)),
                          #           cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
             if pic_cnt %(11*1) == 0:
-                file.writelines("%.1f"%(time.time()-time_begin)+" "+"%d"%(number)+"\n")
-            cv2.imshow('frame', changeRGB2BGR(RGBimg))
+                 file.writelines("%.1f"%(time.time()-time_begin)+" "+"%d"%(number)+"\n")
+            # cv2.imshow('frame', changeRGB2BGR(RGBimg))
+
+            cv2.imwrite('output/samples/'+str(pic_cnt)+'.jpg',changeRGB2BGR(result))
+
             # cv2.waitKey(0)
 
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
 
 
-        ####################输出人流总数##################
-
-        ####################输出人流总数##################
 
         cap.release()
         cv2.destroyAllWindows()

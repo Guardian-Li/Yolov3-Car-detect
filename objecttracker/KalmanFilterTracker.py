@@ -235,8 +235,7 @@ class Tracker(object):
                 if id < len(self.tracks):
                     del self.tracks[id]
                     del assignment[id]
-                else:
-                    print("ERROR: id is greater than length of tracks")
+
 
         # Now look for un_assigned detects
         un_assigned_detects = []
